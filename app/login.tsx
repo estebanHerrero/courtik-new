@@ -4,7 +4,7 @@ import {
   Montserrat_500Medium,
   Montserrat_600SemiBold,
   Montserrat_700Bold,
-  useFonts
+  useFonts,
 } from "@expo-google-fonts/montserrat";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -13,7 +13,8 @@ import {
   Image,
   Platform,
   StyleSheet,
-  TouchableOpacity, View
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function LoginScreen() {
@@ -27,47 +28,59 @@ export default function LoginScreen() {
     Montserrat_700Bold,
   });
 
-  if (!fontsLoaded) {
-    return null; // o un componente de carga
-  }
+  if (!fontsLoaded) return null;
+
+  const goToHome = () => {
+    // Navegación básica sin OAuth por ahora
+    router.push("/home");
+  };
 
   return (
     <>
       <Image
-        source={require("../assets/paleta.png")} 
+        source={require("../assets/paleta.png")}
         style={{
-        position: "absolute",
-        right: 0, // pegada al borde derecho
-        top: 0,
-        width: "100%",
-        height: "100%",
-        resizeMode: "contain",
-          opacity: 0.08, // 👈 transparencia
+          position: "absolute",
+          right: 0,
+          top: 0,
+          width: "100%",
+          height: "100%",
+          resizeMode: "contain",
+          opacity: 0.08,
         }}
       />
-      
-      <View style={styles.container}>
-        {/* Título */}
-        <AppText variant="regular" style={styles.title}>Hola,{"\n"}bienvenido</AppText>
 
+      <View style={styles.container}>
+        <AppText variant="regular" style={styles.title}>
+          Hola,{"\n"}bienvenido
+        </AppText>
+
+        {/* Android: botón principal */}
         {Platform.OS === "android" && (
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
-          <AppText variant="regular" style={styles.buttonText}>Ingresar con Google</AppText>
-          <Image
-            source={require("../assets/google.png")}
-            style={styles.icon}
-          />
-        </TouchableOpacity> 
+          <TouchableOpacity style={styles.button} onPress={goToHome}>
+            <AppText variant="regular" style={styles.buttonText}>
+              Ingresar con Google
+            </AppText>
+            <Image source={require("../assets/google.png")} style={styles.icon} />
+          </TouchableOpacity>
         )}
 
+        {/* iOS: placeholder (puede usar el mismo goToHome si querés) */}
         {Platform.OS === "ios" && (
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
-          <AppText style={styles.buttonText}>Ingresar con Apple</AppText>
-          <AntDesign name="apple1" size={26} color="black" style={styles.iconApple} />
-        </TouchableOpacity>
-      )}
+          <TouchableOpacity style={styles.button} onPress={goToHome}>
+            <AppText style={styles.buttonText}>Ingresar con Apple</AppText>
+            <AntDesign name="apple1" size={26} color="black" style={styles.iconApple} />
+          </TouchableOpacity>
+        )}
 
-        {/* Registro abajo */}
+        {/* Link temporal para probar /test-supabase (si lo querés ocultar, borrá este bloque) 
+        <View style={{ marginTop: 12, paddingHorizontal: 20 }}>
+          <Link href="/test-supabase">
+            <AppText style={{ color: "#00BFFF" }}>Ir a test-supabase</AppText>
+          </Link>
+        </View>
+        */}
+
         <View style={styles.registerContainer}>
           <AppText style={styles.registerText}>¿No tenés cuenta?</AppText>
           <TouchableOpacity style={styles.circleButton} onPress={() => router.push("/register")}>
