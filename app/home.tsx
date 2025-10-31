@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
   },
   card: {
-    width: width * 0.7,
+    width: width * 0.6,
     backgroundColor: "#fff",
     borderRadius: 12,
     marginRight: 16,
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardPrice: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#00AEEF",
     fontWeight: "600",
   },
