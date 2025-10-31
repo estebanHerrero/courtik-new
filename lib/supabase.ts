@@ -12,8 +12,7 @@ if (!extra?.SUPABASE_URL || !extra?.SUPABASE_ANON_KEY) {
   console.warn('Supabase keys missing in app config. Check app.config.js and .env');
 }
 
-console.log('SUPABASE_URL:', extra?.SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY length:', extra?.SUPABASE_ANON_KEY?.length);
+
 
 export const supabase = createClient(
   extra?.SUPABASE_URL ?? '',
