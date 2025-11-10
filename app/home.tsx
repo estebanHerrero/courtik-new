@@ -13,7 +13,7 @@ import {
   View
 } from "react-native";
 import AppText from "../components/AppText";
-import { supabase } from "../lib/supabase"; // <- usa tu lib/supabase.ts
+import { supabase } from "../lib/supabase";
 
 const { width } = Dimensions.get('window');
 
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
-    borderWidth: 2,
+    borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
     height: 50,
@@ -313,15 +313,15 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333",
+    color: "#222222",
     paddingVertical: 10
   },
   inputIcon: { marginLeft: 8 },
 
   switchWrapper: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
-  switchLabel: { marginLeft: 8, fontSize: 14, color: "#333" },
+  switchLabel: { marginLeft: 8, fontSize: 14, color: "#222222" },
 
-  searchBtn: { backgroundColor: "#00AEEF", paddingVertical: 14, alignItems: "center", borderRadius: 25 },
+  searchBtn: { backgroundColor: "#00AEEF", paddingVertical: 10, alignItems: "center", borderRadius: 25, elevation: 3 },
   searchBtnText: { color: "#fff", fontSize: 18, letterSpacing: 1 },
 
   bottomNav: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, borderTopWidth: 1, borderColor: "#eee", marginTop: "auto" },
@@ -421,6 +421,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: "center",
+    elevation: 3,
   },
   reserveBtnText: {
     color: "#fff",
