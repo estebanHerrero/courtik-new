@@ -391,9 +391,17 @@ export default function HomeScreen() {
 
       {/* BOTTOM NAV */}
       <View style={styles.bottomNav}>
-        <Ionicons name="home-outline" size={28} color="#00AEEF" />
-        <Ionicons name="tennisball-outline" size={28} color="#888" />
-        <Ionicons name="person-outline" size={28} color="#888" />
+        <TouchableOpacity onPress={() => router.push("/home")}>
+          <Ionicons name="home-outline" size={28} color="#00AEEF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/reservas")}>
+          <Ionicons name="tennisball-outline" size={28} color="#888" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/perfil")}>
+          <Ionicons name="person-outline" size={28} color="#888" />
+        </TouchableOpacity>
       </View>
     </View>
   );
