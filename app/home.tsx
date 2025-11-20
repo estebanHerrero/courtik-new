@@ -426,5 +426,6 @@ const styles = StyleSheet.create({
   reserveBtnText: {
     color: "#fff",
     fontSize: 14,
+    letterSpacing: 1,
   },
 });

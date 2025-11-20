@@ -1,17 +1,13 @@
 import AppText from "@/components/AppText";
-import {
-  Montserrat_400Regular,
-  Montserrat_500Medium,
-  Montserrat_600SemiBold,
-  Montserrat_700Bold,
-  useFonts,
-} from "@expo-google-fonts/montserrat";
-import { AntDesign } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
-  Platform,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -19,259 +15,200 @@ import {
 } from "react-native";
 
 export default function LoginScreen() {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [focusedInput, setFocusedInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [fontsLoaded] = useFonts({
-    Montserrat_400Regular,
-    Montserrat_500Medium,
-    Montserrat_600SemiBold,
-    Montserrat_700Bold,
-  });
+  const { signIn } = useAuth();
+  const router = useRouter();
 
-  if (!fontsLoaded) return null;
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Por favor completá todos los campos");
+      return;
+    }
 
-  const goToHome = () => {
-    router.push("/home");
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      // El listener en AuthContext redirige automáticamente a /home
+    } catch (error) {
+      console.log("❌ Error en signIn:", error);
+      Alert.alert("Error", "No se pudo iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const getInputStyle = (field: string) => [
+    styles.input,
+    { borderColor: focusedInput === field ? "#00AEEF" : "#7B94A4" },
+  ];
+
   return (
-    <>
-      <Image
-        source={require("../assets/paleta.png")}
-        style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-          width: "100%",
-          height: "100%",
-          resizeMode: "contain",
-          opacity: 0.08,
-        }}
+    <LinearGradient colors={["#f7f9fc", "#e8f5ff"]} style={styles.container}>
+      <View style={styles.header}>
+        <Image
+          source={require("../assets/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+
+      <AppText variant="medium" style={styles.title}>
+        Hola, bienvenido
+      </AppText>
+
+      <TextInput
+        style={getInputStyle("email")}
+        placeholder="Correo electrónico"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+        onFocus={() => setFocusedInput("email")}
+        onBlur={() => setFocusedInput("")}
+        editable={!loading}
       />
 
-      <View style={styles.container}>
-        {/* 1. Header arriba */}
-        <View style={styles.headerContainer}>
-          <AppText variant="regular" style={styles.title}>
-            Hola,{"\n"}bienvenido
-          </AppText>
-        </View>
-
-        {/* 2. Formulario con inputs */}
-        <View style={styles.formContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Correo electrónico"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            placeholderTextColor="#999"
+      <View
+        style={[
+          getInputStyle("password"),
+          { flexDirection: "row", alignItems: "center", paddingVertical: 10 },
+        ]}
+      >
+        <TextInput
+          style={{ flex: 1, fontSize: 16, paddingVertical: 0 }}
+          placeholder="Contraseña"
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+          value={password}
+          onChangeText={setPassword}
+          onFocus={() => setFocusedInput("password")}
+          onBlur={() => setFocusedInput("")}
+          editable={!loading}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={22}
+            color="#00AEEF"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.ingresarContainer}>  
-          <TouchableOpacity style={styles.ingresarBtn}>
-            <AppText variant="semibold" style={styles.ingresarBtnText}>
-              Ingresar
-            </AppText>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.separatorContainer}>
-          <View style={styles.line} />
-            <AppText style={styles.separatorText}>o</AppText>
-          <View style={styles.line} />
-        </View>
-
-        {/* 3. Botones sociales y registro */}
-        <View style={styles.buttonsContainer}>
-          {Platform.OS === "android" && (
-            <TouchableOpacity style={styles.button} onPress={goToHome}>
-              <AppText variant="regular" style={styles.buttonText}>
-                Ingresar con 
-              </AppText>
-              <Image
-                source={require("../assets/google.png")}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-          )}
-
-          {Platform.OS === "ios" && (
-            <TouchableOpacity style={styles.button} onPress={goToHome}>
-              <AppText style={styles.buttonText}>Ingresar con </AppText>
-              <AntDesign
-                name="apple1"
-                size={26}
-                color="black"
-                style={styles.iconApple}
-              />
-            </TouchableOpacity>
-          )}
-
-          <View style={styles.registerContainer}>
-            <AppText style={styles.registerText}>¿No tenés cuenta?</AppText>
-            <TouchableOpacity
-              style={styles.circleButton}
-              onPress={() => router.push("/register")}
-            >
-              <AntDesign name="right" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        </TouchableOpacity>
       </View>
-    </>
+
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.6 }]}
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <AppText variant="semibold" style={styles.buttonText}>
+            Ingresar
+          </AppText>
+        )}
+      </TouchableOpacity>
+
+      {/* Botón de Google */}
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => Alert.alert("Google Auth", "No implementado aún 😅")}
+        disabled={loading}
+      >
+        <Image
+          source={require("../assets/google.png")}
+          style={styles.googleIcon}
+        />
+        <AppText variant="medium" style={styles.googleText}>
+          Ingresar con Google
+        </AppText>
+      </TouchableOpacity>
+
+      {/* Link “No tenés cuenta?” */}
+      <TouchableOpacity
+        style={styles.registerLink}
+        onPress={() => router.push("/register")}
+      >
+        <AppText style={styles.registerText}>¿No tenés cuenta?</AppText>
+        <Ionicons name="arrow-forward-circle-outline" size={22} color="#00AEEF" />
+      </TouchableOpacity>
+    </LinearGradient>
   );
 }
-
-// ... (importaciones y componente igual)
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "ffffff",
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    justifyContent: "space-between",
+    padding: 24,
+    justifyContent: "center",
   },
-  headerContainer: {
-    marginBottom: 10, 
+  header: {
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  logo: {
+    width: 150,
+    height: 70,
   },
   title: {
-    fontSize: 40,
-    paddingHorizontal: 16,
-    marginTop: 200,
-    fontFamily: "Montserrat_400Regular",
-    color: "#222222",
-  },
-  formContainer: {
-    marginBottom: 2, 
-    paddingHorizontal: 20,
+    fontSize: 24,
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 28,
   },
   input: {
-    height: 48,
-    borderColor: "#7B94A4",
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12, 
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 18,
     fontSize: 16,
-    fontFamily: "Montserrat_400Regular",
-    color: "#222",
     backgroundColor: "#fff",
   },
-  separatorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-    width: "100%",
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ccc",
-  },
-  separatorText: {
-    marginHorizontal: 12,
-    fontSize: 16,
-    color: "#666",
-    fontFamily: "Montserrat_400Regular",
-  },
-  ingresarContainer: {
-    paddingHorizontal: 16,
-  },
-  ingresarBtn: {
+  button: {
     backgroundColor: "#00AEEF",
-    paddingVertical: 10,
+    paddingVertical: 14,
+    borderRadius: 25,
     alignItems: "center",
-    borderRadius: 28, 
-    elevation: 3,
+    marginTop: 10,
   },
-  ingresarBtnText: {
+  buttonText: {
     color: "#fff",
     fontSize: 18,
     letterSpacing: 1,
   },
-  button: {
+  googleButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#7B94A4",
-    borderTopRightRadius: 28,
-    borderBottomRightRadius: 28,
-    paddingHorizontal: 12,
+    justifyContent: "center",
     backgroundColor: "#fff",
-    elevation: 3,
-    marginBottom: 260,
-    width: "36%",
-    height: 48,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginTop: 20,
   },
-  icon: {
-    width: 24,
-    height: 24,
-    marginLeft: 8,
-    resizeMode: "contain",
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
   },
-  iconApple: {
-    marginLeft: 20,
+  googleText: {
+    color: "#333",
+    fontSize: 16,
   },
-  buttonText: {
-    fontSize: 14,
-    color: "#444",
-  },
-  buttonsContainer: {
-    flexGrow: 1,
-    justifyContent: "flex-end",
-  },
-  registerContainer: {
+  registerLink: {
+    marginTop: 25,
+    alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
-    marginTop: 0,
-    marginBottom: 0,
+    gap: 6,
   },
   registerText: {
-    fontSize: 14,
-    color: "#444",
-    marginRight: 12,
-    fontFamily: "Montserrat_400Regular",
-  },
-  circleButton: {
-    backgroundColor: "#00BFFF",
-    borderTopRightRadius: 28,
-    borderTopLeftRadius: 28,
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 0,
-    paddingHorizontal: 12,
-    paddingVertical: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 3,
-  },
-
-  // Estilos para foco (outline) en botones
-  searchBtnFocus: {
-    borderColor: "#00AEEF",
-    borderWidth: 2,
-  },
-  buttonFocus: {
-    borderColor: "#00AEEF",
-    borderWidth: 2,
-  },
-  circleButtonFocus: {
-    borderColor: "#00AEEF",
-    borderWidth: 2,
+    color: "#00AEEF",
+    fontSize: 15,
   },
 });
