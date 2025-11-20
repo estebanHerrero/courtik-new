@@ -1,5 +1,7 @@
+import NotificationBar from "@/components/NotificationBar";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -10,14 +12,15 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import AppText from "../components/AppText";
 import { supabase } from "../lib/supabase";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
-// Datos de ejemplo (fallback)
+
+// Datos de ejemplo (fallback) - Estos ya no se usarán si Supabase devuelve datos
 const canchasFallback = [
   {
     id: 1,
@@ -25,7 +28,7 @@ const canchasFallback = [
     direccion: "Dr. Luis Beláustegui 3041",
     precio: 20000,
     tipo: "Indoor",
-    imagen: require("../assets/court1.jpg")
+    imagen: require("../assets/court1.jpg"),
   },
   {
     id: 2,
@@ -33,7 +36,7 @@ const canchasFallback = [
     direccion: "Dr. Luis Beláustegui 3041",
     precio: 1800,
     tipo: "Outdoor",
-    imagen: require("../assets/court2.jpg")
+    imagen: require("../assets/court2.jpg"),
   },
   {
     id: 3,
@@ -41,6 +44,7 @@ const canchasFallback = [
     direccion: "Dr. Luis Beláustegui 3041",
     precio: 3200,
     tipo: "Indoor",
+    imagen: require("../assets/court4.jpg"), // Agregué imagen para que no falle
   },
   {
     id: 4,
@@ -48,8 +52,8 @@ const canchasFallback = [
     direccion: "Dr. Luis Beláustegui 3041",
     precio: 2000,
     tipo: "Outdoor",
-    imagen: require("../assets/court4.jpg")
-  }
+    imagen: require("../assets/court4.jpg"),
+  },
 ];
 
 export default function HomeScreen() {
@@ -68,6 +72,59 @@ export default function HomeScreen() {
   const [canchas, setCanchas] = useState<any[]>(canchasFallback);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Estados para la notificación
+  const [notifVisible, setNotifVisible] = useState(false);
+  const [notifMessage, setNotifMessage] = useState("");
+
+  // Función para manejar la reserva (simulada)
+  const handleReserve = (canchaNombre: string) => {
+    const fechaTexto = date || "sin fecha seleccionada";
+    const horaTexto = hour || "sin hora seleccionada";
+
+    const msg = `Cancha "${canchaNombre}" reservada para ${fechaTexto} a las ${horaTexto}. (Simulación)`;
+    setNotifMessage(msg);
+    setNotifVisible(true);
+
+    setTimeout(() => {
+      setNotifVisible(false);
+    }, 3000);
+  };
+
+    const handleSearch = async () => {
+  try {
+    // 1) Pedir permiso
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      setNotifMessage("Permiso de ubicación denegado. Activala para buscar canchas cercanas.");
+      setNotifVisible(true);
+      setTimeout(() => setNotifVisible(false), 3000);
+      return;
+    }
+
+    // 2) Obtener ubicación actual
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+
+    console.log("📍 Ubicación actual:", latitude, longitude);
+
+    // 3) Mensaje más real
+    setNotifMessage("Ubicación detectada. Pronto vas a ver canchas cerca tuyo.");
+    setNotifVisible(true);
+    setTimeout(() => setNotifVisible(false), 3000);
+  } catch (error: any) {
+    // NO usamos console.error aquí para evitar la pantalla roja en la demo
+    // console.error("Error obteniendo ubicación:", error);
+
+    const msgBase =
+      "No pudimos obtener tu ubicación. Verificá que el GPS esté activado.";
+
+    setNotifMessage(msgBase);
+    setNotifVisible(true);
+    setTimeout(() => setNotifVisible(false), 3000);
+  }
+};
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -77,11 +134,12 @@ export default function HomeScreen() {
           .select("*")
           .order("id", { ascending: true });
 
+        console.log("🔎 Supabase courts data:", data);
+        console.log("🔎 Supabase courts error:", error);
+
         if (error) {
           console.error("Supabase error:", error);
-          // mantenemos el fallback en caso de error
         } else if (data && Array.isArray(data) && data.length > 0) {
-          // Ajuste: supabase devuelve images como text[] (URLs). adaptamos la estructura si hace falta.
           setCanchas(data);
         }
       } catch (err) {
@@ -95,13 +153,14 @@ export default function HomeScreen() {
   }, []);
 
   const renderCanchaCard = ({ item }) => {
-    // Determinar la imagen: si hay item.images (array de URLs) usamos la primera; si item.imagen es string o require
     const imgSource =
       item?.images && Array.isArray(item.images) && item.images.length
         ? { uri: item.images[0] }
-        : (typeof item.imagen === "string"
-            ? { uri: item.imagen }
-            : item.imagen);
+        : typeof item.imagen === "string"
+        ? { uri: item.imagen }
+        : item.imagen || require("../assets/court1.jpg");
+
+ 
 
     return (
       <View style={styles.card}>
@@ -111,7 +170,15 @@ export default function HomeScreen() {
             {item.nombre}
           </AppText>
 
-          <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 20,
+            }}
+          >
             <AppText variant="regular" style={{ fontSize: 13, flexShrink: 1 }}>
               {item.direccion}
             </AppText>
@@ -121,30 +188,38 @@ export default function HomeScreen() {
               style={{ marginLeft: 6 }}
               accessibilityLabel={`Más información sobre ${item.nombre}`}
             >
-              <Ionicons name="information-circle-outline" size={22} color="#333" />
+              <Ionicons
+                name="information-circle-outline"
+                size={22}
+                color="#333"
+              />
             </TouchableOpacity>
           </View>
 
           <View style={styles.cardInfo}>
-            <AppText style={styles.cardPrice}>
-              ${item.precio}/hora
-            </AppText>
+            <AppText style={styles.cardPrice}>${item.precio}/hora</AppText>
             <View style={styles.typeContainer}>
               <Ionicons
                 name={item.tipo === "Indoor" ? "home-outline" : "sunny-outline"}
                 size={16}
                 color={item.tipo === "Indoor" ? "#00AEEF" : "#FF9800"}
               />
-              <AppText style={[
-                styles.cardType,
-                { color: item.tipo === "Indoor" ? "#00AEEF" : "#FF9800" }
-              ]}>
+              <AppText
+                style={[
+                  styles.cardType,
+                  { color: item.tipo === "Indoor" ? "#00AEEF" : "#FF9800" },
+                ]}
+              >
                 {item.tipo}
               </AppText>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.reserveBtn}>
+          {/* Botón Reservar con la función handleReserve */}
+          <TouchableOpacity
+            style={styles.reserveBtn}
+            onPress={() => handleReserve(item.nombre)}
+          >
             <AppText variant="semibold" style={styles.reserveBtnText}>
               Reservar
             </AppText>
@@ -156,6 +231,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <NotificationBar
+        visible={notifVisible}
+        message={notifMessage}
+        onClose={() => setNotifVisible(false)}
+      />
       {/* HEADER */}
       <View style={styles.header}>
         <Image
@@ -164,7 +244,12 @@ export default function HomeScreen() {
           resizeMode="contain"
         />
         <View style={styles.headerRight}>
-          <Ionicons name="person-circle-outline" size={30} color="#0B0F14" style={{ marginRight: 12 }} />
+          <Ionicons
+            name="person-circle-outline"
+            size={30}
+            color="#0B0F14"
+            style={{ marginRight: 12 }}
+          />
           <Ionicons name="menu" size={28} color="#0B0F14" />
         </View>
       </View>
@@ -176,16 +261,23 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={[
               styles.inputWrapper,
-              { borderColor: isDateFocused ? "#00AEEF" : "#7B94A4" }
+              { borderColor: isDateFocused ? "#00AEEF" : "#7B94A4" },
             ]}
             onPress={() => setShowDatePicker(true)}
             onFocus={() => setDateFocused(true)}
             onBlur={() => setDateFocused(false)}
           >
-            <AppText style={{ flex: 1, fontSize: 16, color: date ? "#333" : "#555" }}>
+            <AppText
+              style={{ flex: 1, fontSize: 16, color: date ? "#333" : "#555" }}
+            >
               {date || "¿Qué día querés jugar?"}
             </AppText>
-            <Ionicons name="calendar-outline" size={20} color="#00AEEF" style={styles.inputIcon} />
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+              color="#00AEEF"
+              style={styles.inputIcon}
+            />
           </TouchableOpacity>
 
           {showDatePicker && (
@@ -204,16 +296,23 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={[
               styles.inputWrapper,
-              { borderColor: isHourFocused ? "#00AEEF" : "#7B94A4" }
+              { borderColor: isHourFocused ? "#00AEEF" : "#7B94A4" },
             ]}
             onPress={() => setShowTimePicker(true)}
             onFocus={() => setHourFocused(true)}
             onBlur={() => setHourFocused(false)}
           >
-            <AppText style={{ flex: 1, fontSize: 16, color: hour ? "#333" : "#555" }}>
+            <AppText
+              style={{ flex: 1, fontSize: 16, color: hour ? "#333" : "#555" }}
+            >
               {hour || "¿A qué hora?"}
             </AppText>
-            <Ionicons name="time-outline" size={20} color="#00AEEF" style={styles.inputIcon} />
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color="#00AEEF"
+              style={styles.inputIcon}
+            />
           </TouchableOpacity>
 
           {showTimePicker && (
@@ -239,19 +338,27 @@ export default function HomeScreen() {
               style={[styles.toggleBtn, indoor && styles.toggleBtnActive]}
               onPress={() => setIndoor(true)}
             >
-              <AppText style={indoor ? styles.toggleTextActive : styles.toggleText}>Indoor</AppText>
+              <AppText
+                style={indoor ? styles.toggleTextActive : styles.toggleText}
+              >
+                Indoor
+              </AppText>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.toggleBtn, !indoor && styles.toggleBtnActive]}
               onPress={() => setIndoor(false)}
             >
-              <AppText style={!indoor ? styles.toggleTextActive : styles.toggleText}>Outdoor</AppText>
+              <AppText
+                style={!indoor ? styles.toggleTextActive : styles.toggleText}
+              >
+                Outdoor
+              </AppText>
             </TouchableOpacity>
           </View>
 
-          {/* Botón Buscar */}
-          <TouchableOpacity style={styles.searchBtn}>
+          {/* Botón Buscar (lo dejaremos para el siguiente paso) */}
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
             <AppText variant="semibold" style={styles.searchBtnText}>
               Buscar
             </AppText>
@@ -295,7 +402,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 16, paddingTop: 60 },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   logo: { width: 120, height: 60, marginBottom: 8 },
   headerRight: { flexDirection: "row", alignItems: "center" },
 
@@ -308,23 +420,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     height: 50,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   input: {
     flex: 1,
     fontSize: 16,
     color: "#222222",
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   inputIcon: { marginLeft: 8 },
 
-  switchWrapper: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  switchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   switchLabel: { marginLeft: 8, fontSize: 14, color: "#222222" },
 
-  searchBtn: { backgroundColor: "#00AEEF", paddingVertical: 10, alignItems: "center", borderRadius: 25, elevation: 3 },
+  searchBtn: {
+    backgroundColor: "#00AEEF",
+    paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 25,
+    elevation: 3,
+  },
   searchBtnText: { color: "#fff", fontSize: 18, letterSpacing: 1 },
 
-  bottomNav: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, borderTopWidth: 1, borderColor: "#eee", marginTop: "auto" },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderColor: "#eee",
+    marginTop: "auto",
+  },
 
   toggleWrapper: {
     flexDirection: "row",
@@ -340,10 +469,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 6,
     alignItems: "center",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   toggleBtnActive: {
-    backgroundColor: "#00AEEF"
+    backgroundColor: "#00AEEF",
   },
   toggleText: {
     color: "#00AEEF",

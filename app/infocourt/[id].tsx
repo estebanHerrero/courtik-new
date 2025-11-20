@@ -1,19 +1,20 @@
 // app/infocourt/[id].tsx
+import NotificationBar from "@/components/NotificationBar";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    Image,
-    Linking,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from "react-native";
 import AppText from "../../components/AppText";
 import { supabase } from "../../lib/supabase";
@@ -22,11 +23,14 @@ const { width } = Dimensions.get("window");
 const HEADER_HEIGHT = 320;
 
 export default function InfoCourtScreen() {
+  console.log("📄 Renderizando Infocourt [id]");
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [court, setCourt] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [notifVisible, setNotifVisible] = useState(false);
+  const [notifMessage, setNotifMessage] = useState("");
 
   // Map module state (carga dinámica)
   const [MapModule, setMapModule] = useState<any | null>(null);
@@ -96,6 +100,11 @@ export default function InfoCourtScreen() {
 
   return (
     <View style={styles.container}>
+      <NotificationBar
+        visible={notifVisible}
+        message={notifMessage}
+        onClose={() => setNotifVisible(false)}
+      />
       {/* HEADER IMAGE + GRADIENT */}
       <View style={styles.headerContainer}>
         {images[0] ? (
@@ -213,9 +222,23 @@ export default function InfoCourtScreen() {
 
         {/* BOTÓN RESERVAR (debajo del mapa) */}
         <View style={{ paddingHorizontal: 16 }}>
-          <TouchableOpacity style={styles.reserveFullBtn} onPress={() => {/* lógica reservar */}}>
-            <AppText variant="semibold" style={styles.reserveFullBtnText}>Reservar</AppText>
-          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.reserveBtn}
+            onPress={() => {
+              const msg = `Cancha "${court.nombre}" reservada. (Simulación)`;
+              setNotifMessage(msg);
+              setNotifVisible(true);
+
+              setTimeout(() => {
+                setNotifVisible(false);
+                router.push("/home");
+              }, 2000);
+            }}
+          >
+            <AppText variant="semibold" style={styles.reserveBtnText}>
+              Reservar
+            </AppText>
+          </TouchableOpacity>    
         </View>
       </ScrollView>
     </View>
@@ -292,5 +315,18 @@ const styles = StyleSheet.create({
   reserveFullBtn: { backgroundColor: "#00AEEF", paddingVertical: 14, borderRadius: 10, alignItems: "center", marginBottom: 24 },
   reserveFullBtnText: { color: "#fff", fontSize: 16, fontWeight: "600" },
   empty: { flex: 1, justifyContent: "center", alignItems: "center" },
-  goBackBtn: { marginTop: 16, backgroundColor: "#00AEEF", paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 }
+  goBackBtn: { marginTop: 16, backgroundColor: "#00AEEF", paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  reserveBtn: {
+    backgroundColor: "#00AEEF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    elevation: 3,
+  },
+  reserveBtnText: {
+    color: "#fff",
+    fontSize: 14,
+    letterSpacing: 1,
+  }
 });
