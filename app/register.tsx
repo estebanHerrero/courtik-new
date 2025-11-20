@@ -1,9 +1,9 @@
 import AppText from "@/components/AppText";
-import { useAuth } from "@/context/AuthContext"; // 👈 importá el hook
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Image,
   StyleSheet,
@@ -13,17 +13,22 @@ import {
 } from "react-native";
 
 export default function RegisterScreen() {
+  console.log("👀 RegisterScreen renderizado");
+
   const [nombre, setNombre] = useState("");
   const [apodo, setApodo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // 👈 estado de carga
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { signUp } = useAuth(); // 👈 obtenemos la función signUp del contexto
+  const router = useRouter();
+  const { signUp } = useAuth();
 
   const handleRegister = async () => {
+    console.log("🔘 Botón REGISTRATE clickeado");
+
     // Validaciones básicas
     if (!nombre.trim() || !apodo.trim() || !email.trim() || !password.trim()) {
       Alert.alert("Error", "Por favor completá todos los campos");
@@ -38,25 +43,33 @@ export default function RegisterScreen() {
     setIsLoading(true);
 
     try {
+      console.log("📝 Intentando registrar:", email);
       await signUp(email, password);
-      // 🎉 Si llegamos acá, el usuario fue creado exitosamente
-      // Opcionalmente podés guardar nombre y apodo en una tabla "profiles" en Supabase
-      // (lo vemos después si querés)
-    } catch (error) {
-      Alert.alert("Error", "Hubo un problema al registrar tu cuenta");
+      console.log("✅ Registro exitoso (signUp terminó sin error)");
+
+      Alert.alert(
+        "¡Listo! 🎉",
+        "Revisá tu correo para confirmar tu cuenta",
+        [{ text: "OK", onPress: () => router.back() }]
+      );
+    } catch (error: any) {
+      console.log("❌ Error en signUp:", error);
+      Alert.alert(
+        "Error",
+        error?.message || "Hubo un problema al registrar tu cuenta"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getInputStyle = (fieldName) => [
+  const getInputStyle = (fieldName: string) => [
     styles.input,
     { borderColor: focusedInput === fieldName ? "#00AEEF" : "#7B94A4" },
   ];
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <Image
           source={require("../assets/logo.png")}
@@ -101,7 +114,6 @@ export default function RegisterScreen() {
         editable={!isLoading}
       />
 
-      {/* Contraseña con ojo 👁️ */}
       <View
         style={[
           getInputStyle("password"),
@@ -130,16 +142,12 @@ export default function RegisterScreen() {
 
       <TouchableOpacity
         style={[styles.button, isLoading && { opacity: 0.6 }]}
-        onPress={handleRegister}
-        disabled={isLoading}
+        onPress={handleRegister}          // 👈 importante
+        disabled={isLoading}              // por ahora está bien así
       >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <AppText variant="semibold" style={styles.buttonText}>
-            Registrate
-          </AppText>
-        )}
+        <AppText variant="semibold" style={styles.buttonText}>
+          Registrate
+        </AppText>
       </TouchableOpacity>
     </View>
   );

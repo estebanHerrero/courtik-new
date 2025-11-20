@@ -19,13 +19,20 @@ function InitialLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      const inAuthGroup = segments[0] === "(auth)";
-      if (!session && !inAuthGroup) {
-        router.replace("/login");
-      } else if (session && inAuthGroup) {
-        router.replace("/home");
-      }
+    if (loading) return;
+
+    // Ruta actual (primeiro segmento), por ejemplo: "login", "register", "home"
+    const current = segments[0] ?? "";
+
+    // Rutas públicas (sin sesión)
+    const isAuthScreen = current === "login" || current === "register";
+
+    if (!session && !isAuthScreen) {
+      // Usuario SIN sesión intentando entrar a rutas privadas -> mandamos a login
+      router.replace("/login");
+    } else if (session && isAuthScreen) {
+      // Usuario CON sesión en login/register -> mandamos a home
+      router.replace("/home");
     }
   }, [session, loading, segments]);
 

@@ -36,18 +36,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) alert(error.message);
-    else alert('Cuenta creada exitosamente 🎉');
+  const { data, error } = await supabase.auth.signUp({ email, password });
     setLoading(false);
-  };
+
+  if (error) {
+    alert(error.message);
+    throw error; // 👈 esto hace que el catch del register lo atrape
+  }
+
+  // Si llegamos acá, el registro fue exitoso
+  console.log("✅ signUp data:", data);
+  alert("Cuenta creada exitosamente ✅");
+};
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+    if (error) {
+      throw error; // 👈 lanzamos el error para que lo atrape el try/catch del login
+    }
+
+    console.log("✅ signIn data:", data);
+    // La sesión se actualiza automáticamente por el listener onAuthStateChange
+    } catch (error) {
+      console.log("❌ Error en signIn:", error);
+      throw error; // 👈 re-lanzamos para que LoginScreen lo atrape
+    } finally {
+      setLoading(false); // 👈 siempre se ejecuta, haya error o no
+    }
   };
+
+
 
   const signOut = async () => {
     setLoading(true);

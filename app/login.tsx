@@ -32,11 +32,12 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      console.log("🔐 Intentando login con:", email);
       await signIn(email, password);
-      // El listener en AuthContext redirige automáticamente a /home
-    } catch (error) {
-      console.log("❌ Error en signIn:", error);
-      Alert.alert("Error", "No se pudo iniciar sesión");
+      console.log("✅ Login exitoso (signIn terminó sin error)");
+    } catch (error: any) {
+        console.log("❌ Error en signIn:", error);
+        Alert.alert("Error", error?.message || "No se pudo iniciar sesión");
     } finally {
       setLoading(false);
     }
