@@ -53,22 +53,31 @@ Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **Re
 
 ---
 
+### Notificaciones locales
+
+Se implementó una notificación local usando `expo-notifications`:
+
+- Al abrir la app, se piden permisos de notificación al usuario.
+- Si los concede, se programa un recordatorio que muestra un mensaje:
+  **“¡No te olvides de reservar tu cancha esta semana!”**.
+- Para la demo se configuró como disparo a los X segundos, pero el código está preparado para usar un horario diario (por ejemplo todos los días a las 10:00).
+
 ## 2. Capturas de pantalla
 
 A continuación se listan las capturas principales de la app (todas tomadas desde el emulador de Android):
 
-1. **Login**
+   2.1 **Login**
 
-    ![Pantalla de login](/login.png)
+   ![Pantalla de login](/login.png)
     
-2. **Registro de usuario**
+   2.2 **Registro de usuario**
 
-    ![Pantalla de registro](/register.png)
+   ![Pantalla de registro](/register.png)
     
-3. **Home**
+   2.3 **Home**
 
-    ![Home](/home.png)
+   ![Home](/home.png)
     
-4. **Pantalla de reserva**
+   2.4 **Pantalla de reserva**
 
-    ![Pantalla de reserva](/reservas.png)
+   ![Pantalla de reserva](/reservas.png)
