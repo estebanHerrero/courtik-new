@@ -58,12 +58,17 @@ Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **Re
 A continuación se listan las capturas principales de la app (todas tomadas desde el emulador de Android):
 
 1. **Login**
+
     ![Pantalla de login](/login.png)
+    
 2. **Registro de usuario**
+
     ![Pantalla de registro](/register.png)
+    
 3. **Home**
+
     ![Home](/home.png)
-4. **Listado de canchas**
-    ![Listado de canchas](/canchas.png)
-5. **Pantalla de reserva**
+    
+4. **Pantalla de reserva**
+
     ![Pantalla de reserva](/reservas.png)
