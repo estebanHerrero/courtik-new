@@ -53,14 +53,15 @@ Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **Re
 
 ---
 
-### Notificaciones locales
+### Notificaciones / Confirmaciones de acción
 
-Se implementó una notificación local usando `expo-notifications`:
+- Se implementó un componente propio de notificación (`NotificationBar`) que aparece en la parte superior de la pantalla para:
+  - Confirmar que una reserva se realizó (mensaje “Cancha reservada para X día y hora”).
+  - Informar errores o estados (por ejemplo, cuando se niega el permiso de ubicación).
 
-- Al abrir la app, se piden permisos de notificación al usuario.
-- Si los concede, se programa un recordatorio que muestra un mensaje:
-  **“¡No te olvides de reservar tu cancha esta semana!”**.
-- Para la demo se configuró como disparo a los X segundos, pero el código está preparado para usar un horario diario (por ejemplo todos los días a las 10:00).
+> Nota: se intentó integrar notificaciones locales del sistema con `expo-notifications`.  
+> Sin embargo, en la versión de Expo Go utilizada (SDK 53) el soporte para notificaciones push/remotas fue removido, y requiere generar un development build nativo.  
+> Por cuestiones de tiempo y simplicidad para la entrega, se decidió mantener una notificación visual dentro de la app (NotificationBar) como confirmación de acción, dejando la integración con `expo-notifications` como mejora futura.
 
 ## 2. Capturas de pantalla
 
