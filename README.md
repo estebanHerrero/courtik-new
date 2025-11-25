@@ -49,7 +49,6 @@ Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **Re
   - **Fecha** y **hora** de la reserva.
 - Validaciones de:
   - Campos obligatorios.
-- Al confirmar, guarda la reserva en Supabase (tabla de reservas) asociada al usuario logueado.
 - Mensajes de éxito / error luego de guardar.
 
 ---
@@ -59,12 +58,12 @@ Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **Re
 A continuación se listan las capturas principales de la app (todas tomadas desde el emulador de Android):
 
 1. **Login**
-    `/login.png`
+    ![Pantalla de login](/login.png)
 2. **Registro de usuario**
-    `/register.png`
+    ![Pantalla de registro](/register.png)
 3. **Home**
-    `/home.png`
+    ![Home](/home.png)
 4. **Listado de canchas**
-    `/canchas.png`
+    ![Listado de canchas](/canchas.png)
 5. **Pantalla de reserva**
-    `/reservas.png`
+    ![Pantalla de reserva](/reservas.png)
