@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+# Courtik 🏓
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil para **alquiler de canchas de pádel**, desarrollada con **React Native + Expo** y **Supabase** como backend.
 
-## Get started
+## 1. Descripción breve de las pantallas
 
-1. Install dependencies
+### 1.1. Pantalla de Login
 
-   ```bash
-   npm install
-   ```
+- Logo de la app y saludo inicial (“Hola, bienvenido”).
+- Campos de:
+  - Correo electrónico.
+  - Contraseña (con botón para mostrar/ocultar).
+- Botón **“Ingresar”** que realiza login con **Supabase Auth (email/contraseña)**.
+- Botón **“Ingresar con Google”** (diseñado y maquetado, integración técnica con OAuth en progreso).
+- Link **“¿No tenés cuenta?”** que navega a la pantalla de registro.
 
-2. Start the app
+### 1.2. Pantalla de Registro
 
-   ```bash
-   npx expo start
-   ```
+- Campos para:
+  - Correo electrónico.
+  - Contraseña.
+- Validación básica de campos vacíos / formato de email.
+- Botón **“Registrarme”** que crea el usuario en **Supabase Auth**.
+- Mensajes de error legibles si el email ya existe o los datos son inválidos.
+- Al registrarse correctamente, se muestra un mensaje de confirmación.
 
-In the output, you'll find options to open the app in a
+### 1.3. Pantalla Home
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Bienvenida al usuario.
+- Acceso principal a:
+  - **Listado de canchas** disponibles.
+  - Navegación a la pantalla de **reservas**.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+### 1.4. Pantalla de Listado de Canchas
 
-When you're ready, run:
+- Muestra las canchas obtenidas desde **Supabase** (tabla en la base de datos).
+- Cada ítem de cancha incluye:
+  - Nombre.
+  - Ubicación.
+  - Tipo de superficie / características
+  - + Características en Info
+- Posibilidad de seleccionar una cancha para avanzar a la reserva.
 
-```bash
-npm run reset-project
-```
+### 1.5. Pantalla de Reservas
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- Permite elegir:
+  - **Cancha**.
+  - **Fecha** y **hora** de la reserva.
+- Validaciones de:
+  - Campos obligatorios.
+- Al confirmar, guarda la reserva en Supabase (tabla de reservas) asociada al usuario logueado.
+- Mensajes de éxito / error luego de guardar.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 2. Capturas de pantalla
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+A continuación se listan las capturas principales de la app (todas tomadas desde el emulador de Android):
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. **Login**
+   - `login.png`
+2. **Registro de usuario**
+   - `register.png`
+3. **Home**
+   - `home.png`
+4. **Listado de canchas**
+   - `canchas.png`
+5. **Pantalla de reserva**
+   - `reservas.png`
